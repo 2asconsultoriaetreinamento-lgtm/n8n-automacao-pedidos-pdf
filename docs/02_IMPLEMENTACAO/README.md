@@ -1,4 +1,4 @@
-# 🔧 Implementação e Deploy
+# 📋 Implementação e Deploy
 
 ## Sobre Esta Pasta
 
@@ -6,41 +6,38 @@ Guias de implementação detalhados com passos completos para deploy do projeto 
 
 ## Documentos
 
-### [IMPLEMENTACAO_v4.4_PASSO_A_PASSO.md](./IMPLEMENTACAO_v4.4_PASSO_A_PASSO.md)
-Guia completo de implementação para v4.4 (Email IMAP)
-- 13+ passos do setup até produção
-- Instruções IMAP detalhadas
-- Configuração de banco de dados
-- Testes e validação
+- **IMPLEMENTACAO_v4.4_PASSO_A_PASSO.md** - Guia completo de implementação para v4.4 (Email IMAP)
+  - 13+ passos do setup até produção
+  - Instruções IMAP detalhadas
+  - Configuração de banco de dados
+  - Testes e validação
 
-### [IMPLEMENTACAO_v4.5_PASSO_A_PASSO.md](./IMPLEMENTACAO_v4.5_PASSO_A_PASSO.md)
-Guia completo de implementação para v4.5 (Gmail Trigger) ⭐ RECOMENDADO
-- 13+ passos do setup até produção
-- Instruções OAuth2 detalhadas
-- Configuração de banco de dados
-- Testes e validação
-- Monitoramento em produção
+- **IMPLEMENTACAO_v4.5_PASSO_A_PASSO.md** - Guia completo de implementação para v4.5 (Gmail Trigger) ⭐ RECOMENDADO
+  - 15+ passos com Gmail OAuth2
+  - Configuração de credenciais
+  - Deploy em n8n Cloud ou Self-hosted
+  - Testes de sincronização
 
-### [MIGRACAO_v4.4_para_v4.5.md](./MIGRACAO_v4.4_para_v4.5.md) (Novo)
-Guia passo-a-passo para migrar de v4.4 para v4.5
-- Backup e preparação
-- Setup paralelo
-- Teste e validação
-- Switcher para v4.5
-- Rollback se necessário
+- **IMPORTACAO_N8N.md** - Guia de importação do fluxo n8n
+  - Como importar workflows JSON
+  - Versões disponíveis
+  - Validação pós-importação
 
-## Como Usar
+## Guia de Implementação Rápida
 
-1. **Se é novo**: Comece em `01_GUIAS_RAPIDOS/`
-2. **Se já leu o guia rápido**: Siga este diretório
-3. **Se quer migrar de v4.4**: Veja MIGRACAO_v4.4_para_v4.5.md
+1. **Escolha a versão**: [Guias Rápidos](../01_GUIAS_RAPIDOS/README.md)
+2. **Configure o ambiente**: [Configuração](../03_CONFIGURACAO/README.md)
+3. **Siga os passos**: Use IMPLEMENTACAO_v4.X_PASSO_A_PASSO.md
+4. **Importe o fluxo**: Veja IMPORTACAO_N8N.md
+5. **Teste tudo**: [Testes](../07_TESTES/README.md)
+6. **Em problemas**: [Troubleshooting](../08_TROUBLESHOOTING/README.md)
 
 ## Próximos Passos
 
-- ✅ Instale segundo passos detalhados
-- 🧒 Teste com dados reais
-- 📄 Consulte `03_CONFIGURACAO/` se tiver dúvidas
+- [Voltar para Guias Rápidos](../01_GUIAS_RAPIDOS/README.md)
+- [Ver Configuração](../03_CONFIGURACAO/README.md)
+- [Ver Testes](../07_TESTES/README.md)
+- [Voltar ao Índice](../00_INDEX_DOCUMENTACAO.md)
 
 ---
-
 **Última Atualização**: 12 de Novembro de 2025
