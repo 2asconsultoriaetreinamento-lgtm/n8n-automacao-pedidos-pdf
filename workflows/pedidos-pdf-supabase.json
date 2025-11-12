@@ -1,8 +1,10 @@
 {
-  "name": "Automacao Pedidos PDF - Taschibra v4.2",
+  "name": "Automacao Pedidos PDF - Taschibra v4.3",
   "nodes": [
     {
-      "parameters": {"rule": "everyMinute"},
+      "parameters": {
+        "rule": "everyMinute"
+      },
       "id": "SchedulerTrigger",
       "name": "Scheduler (Cron)",
       "type": "n8n-nodes-base.cron",
@@ -11,7 +13,9 @@
       "disabled": false
     },
     {
-      "parameters": {"filePath": "/data/pedidos/{{ now('YYYY-MM-DD') }}.pdf"},
+      "parameters": {
+        "filePath": "/data/pedidos/{{ now('YYYY-MM-DD') }}.pdf"
+      },
       "id": "ReadPDFFile",
       "name": "Read Binary File (PDF)",
       "type": "n8n-nodes-base.readBinaryFile",
@@ -19,7 +23,9 @@
       "position": [300, 100]
     },
     {
-      "parameters": {"functionCode": "const textContent = $json.data; const regexPatterns = {numero_pedido: /(?:Pedido|PED|PEDIDO)[\\s#:]*([\\d]{6,})/i, data_emissao: /(\\d{2})[\\/\\-](\\d{2})[\\/\\-](\\d{4})/, cliente_nome: /(?:Cliente|CLIENTE)[\\s:]*([^\\n,]+)/i, cliente_cnpj: /(?:CNPJ|CPF)[\\s:]*([\\d\\.\\-\\/]+)/i, cidade: /(?:Cidade|CIDADE)[\\s:]*([^,\\n]+)/i, uf: /(?:UF|Estado)[\\s:]*([A-Z]{2})/i, valor_total: /(?:Total|TOTAL|Valor Total)[\\s:]*R\\$\\s*([\\d,.]+)/i}; const pedido = {}; for (const [key, regex] of Object.entries(regexPatterns)) {const match = textContent.match(regex); if (match) {pedido[key] = match[match.length - 1]?.trim() || null;} else {pedido[key] = null;}} const itens = []; const itemRegex = /^\\s*\\d+\\.?\\s+(.+?)\\s+(\\d+,?\\d*)\\s+x?\\s+R\\$\\s*([\\d,.]+)/gm; let itemMatch; while ((itemMatch = itemRegex.exec(textContent)) !== null) {itens.push({descricao_produto: itemMatch[1]?.trim() || 'N/A', quantidade: parseInt(itemMatch[2]?.replace(',', '')) || 0, valor_unitario: parseFloat(itemMatch[3]?.replace(/[^\\d,]/g, '').replace(',', '.')) || 0, status: 'novo'});} return {pedido, itens, total_itens: itens.length, processado_em: new Date().toISOString()};"},
+      "parameters": {
+        "functionCode": "const textContent = $json.data; const regexPatterns = {numero_pedido: /(?:Pedido|PED|PEDIDO)[\\s#:]*([\\d]{6,})/i, data_emissao: /(\\d{2})[\\/\\-](\\d{2})[\\/\\-](\\d{4})/, cliente_nome: /(?:Cliente|CLIENTE)[\\s:]*([^\\n,]+)/i, cliente_cnpj: /(?:CNPJ|CPF)[\\s:]*([\\d\\.\\-\\/]+)/i, cidade: /(?:Cidade|CIDADE)[\\s:]*([^,\\n]+)/i, uf: /(?:UF|Estado)[\\s:]*([A-Z]{2})/i, valor_total: /(?:Total|TOTAL|Valor Total)[\\s:]*R\\$\\s*([\\d,.]+)/i}; const pedido = {}; for (const [key, regex] of Object.entries(regexPatterns)) {const match = textContent.match(regex); if (match) {pedido[key] = match[match.length - 1]?.trim() || null;} else {pedido[key] = null;}} const itens = []; const itemRegex = /^\\s*\\d+\\.?\\s+(.+?)\\s+(\\d+,?\\d*)\\s+x?\\s+R\\$\\s*([\\d,.]+)/gm; let itemMatch; while ((itemMatch = itemRegex.exec(textContent)) !== null) {itens.push({descricao_produto: itemMatch[1]?.trim() || 'N/A', quantidade: parseInt(itemMatch[2]?.replace(',', '')) || 0, valor_unitario: parseFloat(itemMatch[3]?.replace(/[^\\d,]/g, '').replace(',', '.')) || 0, status: 'novo'});} return {pedido, itens, total_itens: itens.length, processado_em: new Date().toISOString()};"
+      },
       "id": "ParseData",
       "name": "Parse Data (Code)",
       "type": "n8n-nodes-base.code",
@@ -27,7 +33,15 @@
       "position": [500, 100]
     },
     {
-      "parameters": {"url": "{{ $env.SUPABASE_URL }}/rest/v1/pedidos?numero_pedido=eq.{{ $node.ParseData.json.pedido.numero_pedido }}", "method": "GET", "authentication": "headerAuth", "headerAuth.Headers": {"Authorization": "Bearer {{ $env.SUPABASE_KEY }}", "Content-Type": "application/json"}},
+      "parameters": {
+        "url": "{{ $env.SUPABASE_URL }}/rest/v1/pedidos?numero_pedido=eq.{{ $node.ParseData.json.pedido.numero_pedido }}",
+        "method": "GET",
+        "authentication": "headerAuth",
+        "headerAuth.Headers": {
+          "Authorization": "Bearer {{ $env.SUPABASE_KEY }}",
+          "Content-Type": "application/json"
+        }
+      },
       "id": "CheckDuplicate",
       "name": "HTTP GET - Verificar Duplicidade",
       "type": "n8n-nodes-base.httpRequest",
@@ -36,15 +50,42 @@
       "continueOnFail": true
     },
     {
-      "parameters": {"conditions": {"conditions": [{"value1": "{{ $json.length }}", "operator": "equal", "value2": 0}], "combinator": "and"}},
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.length > 0}}",
+              "operator": {"name": "===\u002B", "value": "true", "type": "boolean"}
+            }
+          ]
+        }
+      },
       "id": "ValidateDuplicateCondition",
-      "name": "IF - Nao Duplicado?",
+      "name": "Validate Duplicate Condition (IF)",
       "type": "n8n-nodes-base.if",
-      "typeVersion": 2,
+      "typeVersion": 1,
       "position": [900, 100]
     },
     {
-      "parameters": {"url": "{{ $env.SUPABASE_URL }}/rest/v1/pedidos", "method": "POST", "authentication": "headerAuth", "headerAuth.Headers": {"Authorization": "Bearer {{ $env.SUPABASE_SECRET_KEY }}", "Content-Type": "application/json", "Prefer": "return=representation"}, "bodyParametersUi": "json", "body": {"numero_pedido": "{{ $node.ParseData.json.pedido.numero_pedido }}", "data_pedido": "{{ $node.ParseData.json.pedido.data_emissao }}", "cliente_nome": "{{ $node.ParseData.json.pedido.cliente_nome }}", "cliente_cnpj": "{{ $node.ParseData.json.pedido.cliente_cnpj }}", "cidade": "{{ $node.ParseData.json.pedido.cidade }}", "uf": "{{ $node.ParseData.json.pedido.uf }}", "valor_total": "{{ $node.ParseData.json.pedido.valor_total }}", "status": "novo"}},
+      "parameters": {
+        "url": "{{ $env.SUPABASE_URL }}/rest/v1/pedidos",
+        "method": "POST",
+        "authentication": "headerAuth",
+        "headerAuth.Headers": {
+          "Authorization": "Bearer {{ $env.SUPABASE_KEY }}",
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "numero_pedido": "={{$node.ParseData.json.pedido.numero_pedido}}",
+          "data_emissao": "={{$node.ParseData.json.pedido.data_emissao}}",
+          "cliente_nome": "={{$node.ParseData.json.pedido.cliente_nome}}",
+          "cliente_cnpj": "={{$node.ParseData.json.pedido.cliente_cnpj}}",
+          "cidade": "={{$node.ParseData.json.pedido.cidade}}",
+          "uf": "={{$node.ParseData.json.pedido.uf}}",
+          "valor_total": "={{$node.ParseData.json.pedido.valor_total}}",
+          "status": "registrado"
+        }
+      },
       "id": "InsertPedido",
       "name": "HTTP POST - Inserir Pedido",
       "type": "n8n-nodes-base.httpRequest",
@@ -53,15 +94,33 @@
       "continueOnFail": true
     },
     {
-      "parameters": {"expression": "={{ $node.ParseData.json.itens }}"},
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
       "id": "LoopItems",
       "name": "Loop Over Items (Split in Batches)",
       "type": "n8n-nodes-base.splitInBatches",
-      "typeVersion": 3,
+      "typeVersion": 1,
       "position": [1300, 100]
     },
     {
-      "parameters": {"url": "{{ $env.SUPABASE_URL }}/rest/v1/itens_pedido", "method": "POST", "authentication": "headerAuth", "headerAuth.Headers": {"Authorization": "Bearer {{ $env.SUPABASE_SECRET_KEY }}", "Content-Type": "application/json", "Prefer": "return=representation"}, "bodyParametersUi": "json", "body": {"pedido_id": "={{ $node.InsertPedido.json.response[0].id }}", "descricao_produto": "={{ $item.json.descricao_produto }}", "quantidade": "={{ $item.json.quantidade }}", "valor_unitario": "={{ $item.json.valor_unitario }}", "status": "novo"}},
+      "parameters": {
+        "url": "{{ $env.SUPABASE_URL }}/rest/v1/pedido_itens",
+        "method": "POST",
+        "authentication": "headerAuth",
+        "headerAuth.Headers": {
+          "Authorization": "Bearer {{ $env.SUPABASE_KEY }}",
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "numero_pedido": "={{$node.ParseData.json.pedido.numero_pedido}}",
+          "descricao_produto": "={{$item.json.descricao_produto}}",
+          "quantidade": "={{$item.json.quantidade}}",
+          "valor_unitario": "={{$item.json.valor_unitario}}",
+          "status": "={{$item.json.status}}"
+        }
+      },
       "id": "InsertItens",
       "name": "HTTP POST - Inserir Itens",
       "type": "n8n-nodes-base.httpRequest",
@@ -70,17 +129,22 @@
       "continueOnFail": true
     },
     {
-      "parameters": {"url": "{{ $env.SUPABASE_URL }}/rest/v1/logs_processamento", "method": "POST", "authentication": "headerAuth", "headerAuth.Headers": {"Authorization": "Bearer {{ $env.SUPABASE_SECRET_KEY }}", "Content-Type": "application/json"}, "bodyParametersUi": "json", "body": {"tipo_evento": "insercao_sucesso", "mensagem": "Pedido {{ $node.ParseData.json.pedido.numero_pedido }} inserido com {{ $node.ParseData.json.total_itens }} itens com sucesso", "status_sucesso": true}},
-      "id": "LogSucesso",
-      "name": "HTTP POST - Log Sucesso",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4,
-      "position": [1700, 100],
-      "continueOnFail": true
-    },
-    {
-      "parameters": {"url": "{{ $env.SUPABASE_URL }}/rest/v1/logs_processamento", "method": "POST", "authentication": "headerAuth", "headerAuth.Headers": {"Authorization": "Bearer {{ $env.SUPABASE_SECRET_KEY }}", "Content-Type": "application/json"}, "bodyParametersUi": "json", "body": {"tipo_evento": "duplicidade_detectada", "mensagem": "Pedido {{ $node.ParseData.json.pedido.numero_pedido }} ja existe", "status_sucesso": false}},
-      "id": "LogDuplicidade",
+      "parameters": {
+        "url": "{{ $env.SUPABASE_URL }}/rest/v1/processamento_logs",
+        "method": "POST",
+        "authentication": "headerAuth",
+        "headerAuth.Headers": {
+          "Authorization": "Bearer {{ $env.SUPABASE_KEY }}",
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "numero_pedido": "={{$node.ParseData.json.pedido.numero_pedido}}",
+          "status": "sucesso",
+          "total_itens": "={{$node.ParseData.json.total_itens}}",
+          "timestamp": "={{$node.ParseData.json.processado_em}}"
+        }
+      },
+      "id": "LogSuccess",
       "name": "HTTP POST - Log Duplicidade",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4,
@@ -89,17 +153,38 @@
     }
   ],
   "connections": {
-    "SchedulerTrigger": {"main": [[{"node": "ReadPDFFile", "type": "main", "index": 0}]]},
-    "ReadPDFFile": {"main": [[{"node": "ParseData", "type": "main", "index": 0}]]},
-    "ParseData": {"main": [[{"node": "CheckDuplicate", "type": "main", "index": 0}]]},
-    "CheckDuplicate": {"main": [[{"node": "ValidateDuplicateCondition", "type": "main", "index": 0}]]},
-    "ValidateDuplicateCondition": {"main": [[{"node": "InsertPedido", "type": "main", "index": 0}], [{"node": "LogDuplicidade", "type": "main", "index": 0}]]},
-    "InsertPedido": {"main": [[{"node": "LoopItems", "type": "main", "index": 0}]]},
-    "LoopItems": {"main": [[{"node": "InsertItens", "type": "main", "index": 0}]]},
-    "InsertItens": {"main": [[{"node": "LogSucesso", "type": "main", "index": 0}]]}
+    "SchedulerTrigger": {
+      "main": [[{"node": "ReadPDFFile", "type": "main", "index": 0}]]
+    },
+    "ReadPDFFile": {
+      "main": [[{"node": "ParseData", "type": "main", "index": 0}]]
+    },
+    "ParseData": {
+      "main": [[{"node": "CheckDuplicate", "type": "main", "index": 0}]]
+    },
+    "CheckDuplicate": {
+      "main": [[{"node": "ValidateDuplicateCondition", "type": "main", "index": 0}]]
+    },
+    "ValidateDuplicateCondition": {
+      "main": [[{"node": "InsertPedido", "type": "main", "index": 0}], [{"node": "LogSuccess", "type": "main", "index": 0}]]
+    },
+    "InsertPedido": {
+      "main": [[{"node": "LoopItems", "type": "main", "index": 0}]]
+    },
+    "LoopItems": {
+      "main": [[{"node": "InsertItens", "type": "main", "index": 0}]],
+      "output": [{"type": "main", "node": "LoopItems", "index": 0}]
+    },
+    "InsertItens": {
+      "main": [[{"node": "LoopItems", "type": "main", "index": 0}]]
+    }
   },
   "active": false,
-  "settings": {"saveManualExecutions": true, "errorHandler": "save", "timeout": 3600},
-  "version": 4.2,
-  "description": "Fluxo v4.2 - Com Loop Over Items (Split in Batches). Processa TODOS os itens do pedido. Fluxo: PDF > Parse > Validacao > InsertPedido > Loop Itens > InsertItens (para cada item) > Logging. Versao final com suporte completo a multiplos itens por pedido."
+  "settings": {
+    "saveManualExecutions": true,
+    "errorHandler": "save",
+    "timeout": 3600
+  },
+  "version": 4.3,
+  "description": "Fluxo v4.3 - Com Loop Over Items (Split in Batches). Processo TODOS os itens do pedido. Fluxo: PDF -> Parse -> Validacao -> Insercao Pedido -> Loop Items -> Insercao Itens. Feedback loop implementado."
 }
