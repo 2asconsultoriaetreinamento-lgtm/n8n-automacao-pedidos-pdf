@@ -17,6 +17,29 @@ Seguimos [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH
 - docs/CHANGELOG.md - Este arquivo
 - .gitignore com template Node.js
 
+## v2.0.0 - 15 de Novembro de 2025
+
+### Adicionado
+
+- Expansao completa do fluxo n8n com 8 nodes para processamento de PDFs
+- ReadPDFFile: Leitura binaria e processamento de arquivos PDF
+- ExtractPDF: Extracao de texto com OCR em n8n
+- ParseData: Node JavaScript com regex para parsing de dados de pedidos
+- CheckDuplicate: Validacao HTTP GET em Supabase para evitar duplicidade
+- InsertPedido: Insercao de registros de pedidos via HTTP POST
+- LoopItens: Construtor de loop para iteracao de itens do pedido
+- InsertItens: Insercao em lote de itens do pedido via HTTP POST
+- Configuracao de variaveis de ambiente ($env.SUPABASE_URL, $env.SUPABASE_KEY)
+- Mapeamento completo de parametros entre nodes
+- Headers HTTP com autenticacao Bearer
+- Tratamento de erros configurado para "save" e debug
+
+### Modificado
+
+- workflows/pedidos-pdf-supabase.json: Expandido de v1.0 (1 node) para v2.0 (8 nodes)
+- CHANGELOG.md: Atualizado com informacoes de v2.0.0
+
+---
 ### Planejado (Backlog)
 - [x] workflows/pedidos-pdf-supabase.json - Fluxo n8n CRIADO
 - scripts/setup-supabase.sql - DDL para tabelas
