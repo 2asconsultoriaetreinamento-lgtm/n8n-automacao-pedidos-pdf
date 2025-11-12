@@ -15,6 +15,7 @@ Seguimos [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH
 - **Filtros Gmail Avançados**: Suporte a search queries nativas do Gmail
 - **Gerenciamento de Labels**: Capacidade de aplicar labels e arquivar emails
 - **Documentação Gmail**: Guia completo sobre Gmail Trigger vs IMAP
+- - **Correção Loop Node**: Verificação e correção da estrutura "Loop Over Items" (Split in Batches com batch size = 1)
 
 ### Modificado
 
