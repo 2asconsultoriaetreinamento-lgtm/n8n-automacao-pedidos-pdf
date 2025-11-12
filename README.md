@@ -2,7 +2,7 @@
 
 Automacao n8n para extracao de dados de pedidos em PDF (formato Taschibra) e registro em base Supabase, com validacao de duplicidade, agendamento automatico e notificacoes por email/Telegram.
 
-**Status:** Em desenvolvimento v1.0
+**Status:** Em desenvolvimento v4.5.0
 
 ---
 
@@ -162,7 +162,7 @@ GET /rest/v1/Pedidos?numero_pedido=eq.{numero_pedido}
 
 ## Backlog e User Stories
 
-### Sprint 1 (v1.0 - Funcionalidade Basica) - ATUAL
+### Sprint 1 (v4.5.0 - Funcionalidade Basica) - ATUAL
 - [x] US-001: Importar PDFs de pedido e registrar automaticamente
 - [x] US-004: Agendar fluxo automaticamente (Cron)
 - [x] US-005: Validar e evitar duplicidades
