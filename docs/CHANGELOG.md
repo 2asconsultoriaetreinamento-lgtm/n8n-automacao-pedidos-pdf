@@ -6,6 +6,32 @@ Seguimos [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH
 
 ---
 
+## v4.5.0 - 12 de Novembro de 2025
+
+### Adicionado
+
+- **Gmail Trigger Nativo**: Substituição de Email Read IMAP por Gmail Trigger oficial n8n
+- **OAuth2 Segurança**: Autenticação Google OAuth2 ao invés de password SMTP
+- **Filtros Gmail Avançados**: Suporte a search queries nativas do Gmail
+- **Gerenciamento de Labels**: Capacidade de aplicar labels e arquivar emails
+- **Documentação Gmail**: Guia completo sobre Gmail Trigger vs IMAP
+
+### Modificado
+
+- **Primeiro Nó Atualizado**: Scheduler -> Email Trigger (IMAP) -> Gmail Trigger
+- **Recomendação de Segurança**: v4.5 agora oficial, v4.4 mantido como alternativa
+- **Suporte n8n Aprimorado**: Uso de nó mantido oficialmente pelo time n8n
+
+### Detalhes Técnicos
+
+- **Node Type**: `Gmail Trigger` (n8n-nodes-google-gmail)
+- **Autenticação**: OAuth2 Google (sem exposição de senha)
+- **Trigger**: Quando novo email chega em INBOX
+- **Email Capture**: headers.from capturado automaticamente para email_vendedor
+- **Polling**: A cada 1 minuto (otimizado pelo n8n)
+
+---
+
 ## v4.4.0 - 19 de Dezembro de 2025
 
 ### Adicionado
