@@ -6,36 +6,34 @@ Guias de configuração de credenciais, variáveis de ambiente e setup de banco 
 
 ## Documentos
 
-### [VARIAVEIS_AMBIENTE.md](./VARIAVEIS_AMBIENTE.md)
-Todas as variáveis de ambiente necessárias
-- SUPABASE_URL
-- SUPABASE_ANON_KEY
-- email_vendedor (automático via Gmail)
+- **VARIAVEIS_AMBIENTE.md** - Referência completa de todas as variáveis de ambiente necessárias
+  - SUPABASE_URL
+  - SUPABASE_ANON_KEY
+  - Email_vendor (automático via Gmail)
+  - Outras variáveis por versão
 
-### [CONFIGURACAO_EMAIL_IMAP.md](./CONFIGURACAO_EMAIL_IMAP.md)
-Configuração de Email IMAP (v4.4)
-- Setup de SMTP
-- Autenticação com senha
+- **CONFIGURACAO_EMAIL_IMAP.md** - Guia de configuração IMAP para v4.4
+  - Configuração de conta Gmail IMAP
+  - Autenticação com senha de app
+  - Teste de conexão
+  - Troubleshooting de erros IMAP
 
-### [CONFIGURACAO_GMAIL_OAUTH2.md](./CONFIGURACAO_GMAIL_OAUTH2.md) (Novo)
-Configuração de Gmail OAuth2 (v4.5 - RECOMENDADO)
-- Google Cloud Console setup
-- OAuth2 credentials
-- Scopes necessários
+## Guias por Versão
 
-### [SETUP_SUPABASE.sql](./SETUP_SUPABASE.sql) (Novo)
-Script SQL para criar tabelas
-- Tabela pedidos
-- Tabela itens_pedido
-- Índices
+**v4.4 (Email IMAP)**
+- Use: CONFIGURACAO_EMAIL_IMAP.md
+- Variáveis: Veja VARIAVEIS_AMBIENTE.md
 
-## Como Usar
+**v4.5 (Gmail Trigger)**
+- Use: [Guia de Implementação v4.5](../02_IMPLEMENTACAO/IMPLEMENTACAO_v4.5_PASSO_A_PASSO.md)
+- Variáveis: Veja VARIAVEIS_AMBIENTE.md
 
-1. Escolha sua versão (v4.4 ou v4.5)
-2. Configure conforme documentado
-3. Defina variáveis de ambiente
-4. Execute SQL se necessário
+## Próximos Passos
+
+- [Voltar para Implementação](../02_IMPLEMENTACAO/README.md)
+- [Ver Guias Rápidos](../01_GUIAS_RAPIDOS/README.md)
+- [Ver Testes](../07_TESTES/README.md)
+- [Voltar ao Índice](../00_INDEX_DOCUMENTACAO.md)
 
 ---
-
 **Última Atualização**: 12 de Novembro de 2025
