@@ -1,3 +1,15 @@
+> ⚠️ **IMPORTANTE**: Este é um guia para a versão **v4.4 (Email IMAP)**. 
+> 
+> Para instalação em PRODUÇÃO, recomendamos usar a **versão v4.5 (Gmail Trigger)** que oferece:
+> - **Segurança melhor**: Autenticação OAuth2 (sem armazenar senha)
+> - **Compatibilidade**: Nó nativo do n8n (suporte oficial)
+> - **Loop corrigido**: Verificação completa da estrutura
+> 
+> Ver: [GUIA_RAPIDO_v4.5.md](./GUIA_RAPIDO_v4.5.md) para setup de v4.5
+> 
+> ---
+
+
 # Guia Rápido - n8n Automação Pedidos PDF v4.4
 
 **Status**: ✅ Versão 4.4.0 - Recepção via Email (IMAP)
