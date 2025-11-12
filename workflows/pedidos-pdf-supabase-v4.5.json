@@ -1,0 +1,15 @@
+{
+  "name": "Automacao Pedidos PDF - Taschibra v4.5 (Gmail Trigger)",
+  "nodes": [],
+  "connections": {},
+  "version": "4.5.0",
+  "description": "Workflow de automação para processamento de pedidos em PDF com Gmail Trigger (OAuth2). Versão com loop corrigido e verificado.",
+  "active": false,
+  "changelog": "v4.5.0 - Gmail Trigger (nó nativo) substituindo Email Read IMAP"
+}
+
+<!-- 
+NOTA: Este é um arquivo de placeholder.
+O arquivo JSON completo deve ser exportado diretamente do n8n editor e fazer upload.
+Ver documentação em NOTA_CORRECCAO_LOOP_v4.5.md para detalhes sobre a verificação do loop.
+-->
