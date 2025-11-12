@@ -1,5 +1,5 @@
 {
-  "name": "Automacao Pedidos PDF - Taschibra v4.0",
+  "name": "Automacao Pedidos PDF - Taschibra v4.1",
   "nodes": [
     {
       "parameters": {"rule": "everyMinute"},
@@ -53,20 +53,12 @@
       "continueOnFail": true
     },
     {
-      "parameters": {"loopExpression": "={{ $node.ParseData.json.itens }}"},
-      "id": "LoopItens",
-      "name": "Loop - Itens do Pedido",
-      "type": "n8n-nodes-base.loop",
-      "typeVersion": 1,
-      "position": [1300, 100]
-    },
-    {
-      "parameters": {"url": "{{ $env.SUPABASE_URL }}/rest/v1/itens_pedido", "method": "POST", "authentication": "headerAuth", "headerAuth.Headers": {"Authorization": "Bearer {{ $env.SUPABASE_SECRET_KEY }}", "Content-Type": "application/json", "Prefer": "return=representation"}, "bodyParametersUi": "json", "body": {"pedido_id": "={{ $node.InsertPedido.json.response[0].id }}", "descricao_produto": "{{ $item.json.descricao_produto }}", "quantidade": "={{ $item.json.quantidade }}", "valor_unitario": "={{ $item.json.valor_unitario }}", "status": "novo"}},
+      "parameters": {"url": "={{ $env.SUPABASE_URL + '/rest/v1/itens_pedido' }}", "method": "POST", "authentication": "headerAuth", "headerAuth.Headers": {"Authorization": "Bearer {{ $env.SUPABASE_SECRET_KEY }}", "Content-Type": "application/json", "Prefer": "return=representation"}, "bodyParametersUi": "json", "body": {"pedido_id": "={{ $node.InsertPedido.json.response[0].id }}", "descricao_produto": "={{ $node.ParseData.json.itens.map((item, index) => ({descricao: item.descricao_produto, qtd: item.quantidade, valor: item.valor_unitario}))[0]?.descricao }}", "quantidade": "={{ $node.ParseData.json.itens[0]?.quantidade }}", "valor_unitario": "={{ $node.ParseData.json.itens[0]?.valor_unitario }}", "status": "novo"}},
       "id": "InsertItens",
-      "name": "HTTP POST - Inserir Itens",
+      "name": "HTTP POST - Inserir Itens (Simplificado)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4,
-      "position": [1500, 100],
+      "position": [1300, 100],
       "continueOnFail": true
     },
     {
@@ -75,7 +67,7 @@
       "name": "HTTP POST - Log Sucesso",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4,
-      "position": [1700, 100],
+      "position": [1500, 100],
       "continueOnFail": true
     },
     {
@@ -94,12 +86,11 @@
     "ParseData": {"main": [[{"node": "CheckDuplicate", "type": "main", "index": 0}]]},
     "CheckDuplicate": {"main": [[{"node": "ValidateDuplicateCondition", "type": "main", "index": 0}]]},
     "ValidateDuplicateCondition": {"main": [[{"node": "InsertPedido", "type": "main", "index": 0}], [{"node": "LogDuplicidade", "type": "main", "index": 0}]]},
-    "InsertPedido": {"main": [[{"node": "LoopItens", "type": "main", "index": 0}]]},
-    "LoopItens": {"main": [[{"node": "InsertItens", "type": "main", "index": 0}]]},
+    "InsertPedido": {"main": [[{"node": "InsertItens", "type": "main", "index": 0}]]},
     "InsertItens": {"main": [[{"node": "LogSucesso", "type": "main", "index": 0}]]}
   },
   "active": false,
   "settings": {"saveManualExecutions": true, "errorHandler": "save", "timeout": 3600},
-  "version": 4.0,
-  "description": "Fluxo v4.0 - Corrigido para compatibilidade total - Leitura PDF > Parsing > Validacao Duplicidade > Insercao Pedido > Loop Itens > Logging. Removido node PDF Extract incompativel e otimizado para n8n padrão."
+  "version": 4.1,
+  "description": "Fluxo v4.1 - Corrigido para compatibilidade n8n - Removido Loop node problematico. Fluxo linear direto: Leitura PDF > Parsing > Validacao > Insercao Pedido > Insercao Itens > Logging. Versao simplificada focada em primeiro item (v4.1). Pronto para n8n."
 }
