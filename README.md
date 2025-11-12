@@ -6,6 +6,30 @@ Automacao n8n para extracao de dados de pedidos em PDF (formato Taschibra) e reg
 
 ---
 
+## 📂 Documentação
+
+A documentação do projeto foi reorganizada em uma estrutura clara e navegavél.
+
+### Acesso Rápido
+
+- **📄 [Ver Toda Documentação](docs/00_INDEX_DOCUMENTACAO.md)** - Índice completo e guia de navegação
+- **📃 [Resumo da Organização](docs/README_ORGANIZACAO.md)** - Como a documentação foi reorganizada
+- **📋 [Plano de Organização](docs/PLANO_ORGANIZACAO_DOCS.md)** - Mapeamento completo de arquivos
+
+### Estrutura de Dire tórios
+
+- **📄 [01_GUIAS_RAPIDOS](docs/01_GUIAS_RAPIDOS/)** - Guias de início rápido (20 minutos)
+- **📂 [02_IMPLEMENTACAO](docs/02_IMPLEMENTACAO/)** - Guias passo a passo de implementação
+- **⚙️ [03_CONFIGURACAO](docs/03_CONFIGURACAO/)** - Configurações e setup
+- **🎯 [04_ARQUITETURA](docs/04_ARQUITETURA/)** - Design e arquitetura do sistema
+- **📦 [05_VERSOES](docs/05_VERSOES/)** - Histórico de versões e changelog
+- **⚡ [06_COMPARACOES](docs/06_COMPARACOES/)** - Análises comparativas entre versões
+- **✅ [07_TESTES](docs/07_TESTES/)** - Planos e relatórios de testes
+- **🔧 [08_TROUBLESHOOTING](docs/08_TROUBLESHOOTING/)** - Resolução de problemas
+- **📁 [99_ARQUIVOS_LEGADO](docs/99_ARQUIVOS_LEGADO/)** - Documentos descontinuados
+
+
+
 ## Visao do Projeto
 
 Este projeto automatiza o processamento de pedidos Taschibra em formato PDF, extraindo dados estruturados e salvando em um banco de dados Supabase.
