@@ -1,5 +1,5 @@
 {
-  "name": "Automacao Pedidos PDF - Taschibra v4.1",
+  "name": "Automacao Pedidos PDF - Taschibra v4.2",
   "nodes": [
     {
       "parameters": {"rule": "everyMinute"},
@@ -53,21 +53,29 @@
       "continueOnFail": true
     },
     {
-      "parameters": {"url": "={{ $env.SUPABASE_URL + '/rest/v1/itens_pedido' }}", "method": "POST", "authentication": "headerAuth", "headerAuth.Headers": {"Authorization": "Bearer {{ $env.SUPABASE_SECRET_KEY }}", "Content-Type": "application/json", "Prefer": "return=representation"}, "bodyParametersUi": "json", "body": {"pedido_id": "={{ $node.InsertPedido.json.response[0].id }}", "descricao_produto": "={{ $node.ParseData.json.itens.map((item, index) => ({descricao: item.descricao_produto, qtd: item.quantidade, valor: item.valor_unitario}))[0]?.descricao }}", "quantidade": "={{ $node.ParseData.json.itens[0]?.quantidade }}", "valor_unitario": "={{ $node.ParseData.json.itens[0]?.valor_unitario }}", "status": "novo"}},
+      "parameters": {"expression": "={{ $node.ParseData.json.itens }}"},
+      "id": "LoopItems",
+      "name": "Loop Over Items (Split in Batches)",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [1300, 100]
+    },
+    {
+      "parameters": {"url": "{{ $env.SUPABASE_URL }}/rest/v1/itens_pedido", "method": "POST", "authentication": "headerAuth", "headerAuth.Headers": {"Authorization": "Bearer {{ $env.SUPABASE_SECRET_KEY }}", "Content-Type": "application/json", "Prefer": "return=representation"}, "bodyParametersUi": "json", "body": {"pedido_id": "={{ $node.InsertPedido.json.response[0].id }}", "descricao_produto": "={{ $item.json.descricao_produto }}", "quantidade": "={{ $item.json.quantidade }}", "valor_unitario": "={{ $item.json.valor_unitario }}", "status": "novo"}},
       "id": "InsertItens",
-      "name": "HTTP POST - Inserir Itens (Simplificado)",
+      "name": "HTTP POST - Inserir Itens",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4,
-      "position": [1300, 100],
+      "position": [1500, 100],
       "continueOnFail": true
     },
     {
-      "parameters": {"url": "{{ $env.SUPABASE_URL }}/rest/v1/logs_processamento", "method": "POST", "authentication": "headerAuth", "headerAuth.Headers": {"Authorization": "Bearer {{ $env.SUPABASE_SECRET_KEY }}", "Content-Type": "application/json"}, "bodyParametersUi": "json", "body": {"tipo_evento": "insercao_sucesso", "mensagem": "Pedido {{ $node.ParseData.json.pedido.numero_pedido }} inserido com sucesso", "status_sucesso": true}},
+      "parameters": {"url": "{{ $env.SUPABASE_URL }}/rest/v1/logs_processamento", "method": "POST", "authentication": "headerAuth", "headerAuth.Headers": {"Authorization": "Bearer {{ $env.SUPABASE_SECRET_KEY }}", "Content-Type": "application/json"}, "bodyParametersUi": "json", "body": {"tipo_evento": "insercao_sucesso", "mensagem": "Pedido {{ $node.ParseData.json.pedido.numero_pedido }} inserido com {{ $node.ParseData.json.total_itens }} itens com sucesso", "status_sucesso": true}},
       "id": "LogSucesso",
       "name": "HTTP POST - Log Sucesso",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4,
-      "position": [1500, 100],
+      "position": [1700, 100],
       "continueOnFail": true
     },
     {
@@ -86,11 +94,12 @@
     "ParseData": {"main": [[{"node": "CheckDuplicate", "type": "main", "index": 0}]]},
     "CheckDuplicate": {"main": [[{"node": "ValidateDuplicateCondition", "type": "main", "index": 0}]]},
     "ValidateDuplicateCondition": {"main": [[{"node": "InsertPedido", "type": "main", "index": 0}], [{"node": "LogDuplicidade", "type": "main", "index": 0}]]},
-    "InsertPedido": {"main": [[{"node": "InsertItens", "type": "main", "index": 0}]]},
+    "InsertPedido": {"main": [[{"node": "LoopItems", "type": "main", "index": 0}]]},
+    "LoopItems": {"main": [[{"node": "InsertItens", "type": "main", "index": 0}]]},
     "InsertItens": {"main": [[{"node": "LogSucesso", "type": "main", "index": 0}]]}
   },
   "active": false,
   "settings": {"saveManualExecutions": true, "errorHandler": "save", "timeout": 3600},
-  "version": 4.1,
-  "description": "Fluxo v4.1 - Corrigido para compatibilidade n8n - Removido Loop node problematico. Fluxo linear direto: Leitura PDF > Parsing > Validacao > Insercao Pedido > Insercao Itens > Logging. Versao simplificada focada em primeiro item (v4.1). Pronto para n8n."
+  "version": 4.2,
+  "description": "Fluxo v4.2 - Com Loop Over Items (Split in Batches). Processa TODOS os itens do pedido. Fluxo: PDF > Parse > Validacao > InsertPedido > Loop Itens > InsertItens (para cada item) > Logging. Versao final com suporte completo a multiplos itens por pedido."
 }
