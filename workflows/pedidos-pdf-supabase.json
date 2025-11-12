@@ -3,7 +3,6 @@
   "nodes": [
     {
       "parameters": {
-        "rule": "everyMinute",
         "interval": 120
       },
       "id": "SchedulerTrigger",
@@ -11,14 +10,249 @@
       "type": "n8n-nodes-base.cron",
       "typeVersion": 1,
       "position": [100, 100]
+    },
+    {
+      "parameters": {
+        "filePath": "{{ $node.\"Read PDF\".json.filePath }}"
+      },
+      "id": "ReadPDFFile",
+      "name": "Read Binary File",
+      "type": "n8n-nodes-base.readBinaryFile",
+      "typeVersion": 1,
+      "position": [300, 100]
+    },
+    {
+      "parameters": {
+        "binaryPropertyName": "data"
+      },
+      "id": "ExtractPDF",
+      "name": "PDF Extract",
+      "type": "n8n-nodes-base.pdfExtract",
+      "typeVersion": 1,
+      "position": [500, 100]
+    },
+    {
+      "parameters": {
+        "functionCode": "const text = $json.data;\n\nconst pedido = {\n  numero_pedido: text.match(/\\d{17,})?.[0] ?? null,\n  data_emissao: text.match(/(\\d{2})\\/(\\d{2})\\/(\\d{4})/)?.[0] ?? null,\n  cliente_nome: text.match(/Cliente:\\s*(.+?)(?:CPF|CNPJ)/)?.[1]?.trim() ?? null,\n  cliente_cnpj: text.match(/(?:CPF|CNPJ):\\s*([\\d\\.\\-\\/]+)/)?.[1] ?? null,\n  cidade: text.match(/Cidade:\\s*(.+?)UF:/)?.[1]?.trim() ?? null,\n  uf: text.match(/UF:\\s*([A-Z]{2})/)?.[1] ?? null,\n  valor_total: parseFloat(text.match(/R\\$\\s*([\\d,\\.]+)/g)?.pop()?.replace(/[^\\d,]/g, '').replace(',', '.')) || 0,\n  vendedor: text.match(/Vendedor:\\s*(.+?)\\n/)?.[1]?.trim() ?? null,\n  canal: text.match(/Canal:\\s*(.+?)\\n/)?.[1]?.trim() ?? null,\n  tipo: text.match(/Tipo:\\s*(.+?)\\n/)?.[1]?.trim() ?? null\n};\n\nconst itens = [];\nconst linhas = text.split('\\n');\nfor (let linha of linhas) {\n  if (linha.includes('PC') || linha.includes('UN') || linha.includes('CAIXA')) {\n    const partes = linha.split(/\\s{2,}/);\n    if (partes.length >= 6) {\n      itens.push({\n        produto: partes[0]?.trim() ?? 'N/A',\n        codigo: partes[1]?.trim() ?? 'N/A',\n        unidade: partes[2]?.trim() ?? 'PC',\n        quantidade: parseInt(partes[3]?.replace(/[^\\d]/g, '')) || 0,\n        valor_unitario: parseFloat(partes[4]?.replace(/[^\\d,]/g, '').replace(',', '.')) || 0,\n        valor_total: parseFloat(partes[5]?.replace(/[^\\d,]/g, '').replace(',', '.')) || 0,\n        ncm: partes[6]?.trim() ?? null,\n        ipi: parseFloat(partes[7]?.replace(/[^\\d,]/g, '').replace(',', '.')) || 0,\n        tipo_item: 'PAD'\n      });\n    }\n  }\n}\n\nreturn { pedido, itens };\n"
+      },
+      "id": "ParseData",
+      "name": "Parse Data (Code)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [700, 100]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://{{ $env.SUPABASE_URL }}/rest/v1/Pedidos?numero_pedido=eq.{{ $node.\"Parse Data (Code)\".json.pedido.numero_pedido }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "headerParametersUi": {
+          "parameter": [
+            {
+              "name": "apikey",
+              "value": "={{ $env.SUPABASE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.SUPABASE_KEY }}"
+            }
+          ]
+        }
+      },
+      "id": "CheckDuplicate",
+      "name": "Check Duplicate",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [900, 100]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://{{ $env.SUPABASE_URL }}/rest/v1/Pedidos",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "headerParametersUi": {
+          "parameter": [
+            {
+              "name": "apikey",
+              "value": "={{ $env.SUPABASE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.SUPABASE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParametersUi": {
+          "parameter": [
+            {
+              "name": "numero_pedido",
+              "value": "={{ $node.\"Parse Data (Code)\".json.pedido.numero_pedido }}"
+            },
+            {
+              "name": "data_emissao",
+              "value": "={{ $node.\"Parse Data (Code)\".json.pedido.data_emissao }}"
+            },
+            {
+              "name": "cliente_nome",
+              "value": "={{ $node.\"Parse Data (Code)\".json.pedido.cliente_nome }}"
+            },
+            {
+              "name": "cliente_cnpj",
+              "value": "={{ $node.\"Parse Data (Code)\".json.pedido.cliente_cnpj }}"
+            },
+            {
+              "name": "cidade",
+              "value": "={{ $node.\"Parse Data (Code)\".json.pedido.cidade }}"
+            },
+            {
+              "name": "uf",
+              "value": "={{ $node.\"Parse Data (Code)\".json.pedido.uf }}"
+            },
+            {
+              "name": "valor_total",
+              "value": "={{ $node.\"Parse Data (Code)\".json.pedido.valor_total }}"
+            },
+            {
+              "name": "vendedor",
+              "value": "={{ $node.\"Parse Data (Code)\".json.pedido.vendedor }}"
+            },
+            {
+              "name": "canal",
+              "value": "={{ $node.\"Parse Data (Code)\".json.pedido.canal }}"
+            },
+            {
+              "name": "tipo",
+              "value": "={{ $node.\"Parse Data (Code)\".json.pedido.tipo }}"
+            }
+          ]
+        }
+      },
+      "id": "InsertPedido",
+      "name": "Insert Pedido",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1100, 100]
+    },
+    {
+      "parameters": {
+        "loopProperty": "{{ $node.\"Parse Data (Code)\".json.itens }}"
+      },
+      "id": "LoopItens",
+      "name": "Loop Itens",
+      "type": "n8n-nodes-base.loop",
+      "typeVersion": 1,
+      "position": [1300, 100]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://{{ $env.SUPABASE_URL }}/rest/v1/Itens_Pedido",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "headerParametersUi": {
+          "parameter": [
+            {
+              "name": "apikey",
+              "value": "={{ $env.SUPABASE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.SUPABASE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParametersUi": {
+          "parameter": [
+            {
+              "name": "pedido_id",
+              "value": "={{ $node.\"Insert Pedido\".json.response.id }}"
+            },
+            {
+              "name": "produto",
+              "value": "={{ $json.produto }}"
+            },
+            {
+              "name": "codigo",
+              "value": "={{ $json.codigo }}"
+            },
+            {
+              "name": "unidade",
+              "value": "={{ $json.unidade }}"
+            },
+            {
+              "name": "quantidade",
+              "value": "={{ $json.quantidade }}"
+            },
+            {
+              "name": "valor_unitario",
+              "value": "={{ $json.valor_unitario }}"
+            },
+            {
+              "name": "valor_total",
+              "value": "={{ $json.valor_total }}"
+            },
+            {
+              "name": "ncm",
+              "value": "={{ $json.ncm }}"
+            },
+            {
+              "name": "ipi",
+              "value": "={{ $json.ipi }}"
+            },
+            {
+              "name": "tipo_item",
+              "value": "={{ $json.tipo_item }}"
+            }
+          ]
+        }
+      },
+      "id": "InsertItens",
+      "name": "Insert Itens",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1500, 100]
     }
   ],
-  "connections": {},
+  "connections": {
+    "SchedulerTrigger": {
+      "main": [[{"node": "ReadPDFFile", "type": "main", "index": 0}]]
+    },
+    "ReadPDFFile": {
+      "main": [[{"node": "ExtractPDF", "type": "main", "index": 0}]]
+    },
+    "ExtractPDF": {
+      "main": [[{"node": "ParseData", "type": "main", "index": 0}]]
+    },
+    "ParseData": {
+      "main": [[{"node": "CheckDuplicate", "type": "main", "index": 0}]]
+    },
+    "CheckDuplicate": {
+      "main": [[{"node": "InsertPedido", "type": "main", "index": 0}]]
+    },
+    "InsertPedido": {
+      "main": [[{"node": "LoopItens", "type": "main", "index": 0}]]
+    },
+    "LoopItens": {
+      "main": [[{"node": "InsertItens", "type": "main", "index": 0}]]
+    }
+  },
   "active": true,
   "settings": {
     "saveManualExecutions": true,
     "errorHandler": "save"
   },
-  "version": 1.0,
-  "description": "Fluxo automatico para extrair pedidos em PDF (Taschibra) e registrar em Supabase com validacao de duplicidade"
+  "version": 2.0,
+  "description": "Fluxo completo para extrair pedidos em PDF (Taschibra), validar duplicidade e registrar em Supabase com loop para itens (v2.0)"
 }
