@@ -6,6 +6,57 @@ Seguimos [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH
 
 ---
 
+## v4.4.0 - 19 de Dezembro de 2025
+
+### Adicionado
+
+- **Email Trigger (IMAP)**: Substituição do Scheduler por Email Trigger para receptação automática de pedidos via email
+- **Suporte a Múltiplos Vendedores**: Campo email_vendedor adicionado para rastrear qual vendedor enviou cada pedido
+- **Captura Automática de Email**: Email do remetente (From header) é capturado automaticamente e vinculado ao pedido
+- **Documentação de Configuração**: Guia completo para setup IMAP (Hostinger e Gmail)
+- **Script de Migração SQL**: Migration para adicionar email_vendedor às tabelas pedidos e processamento_logs
+- **View de Relatórios**: CREATE VIEW vendedores_resumo para análise de vendedores
+- **Tabela de Vendedores**: Nova tabela para gerenciamento centralizado de vendedores
+- **RLS Policies**: Políticas de segurança (Row Level Security) para proteção de dados
+- **Índices de Performance**: CREATE INDEX para otimização de queries com email_vendedor
+
+### Modificado
+
+- **Node Scheduler Removido**: Substituído por Email Trigger (n8n-nodes-base.emailReadImap)
+- **Conexão do Trigger**: Email Trigger conectado diretamente ao ReadPDFFile
+- **HTTP POST para InsertPedido**: Adicionado campo email_vendedor no body mapping
+- **Email Extraction**: Uso de $node.EmailTrigger.json.headers.from para captura de email
+- **Mark as Read**: Emails processados marcados como lidos automaticamente
+- **Loop Over Items**: Mantido structure de feedback loop da v4.3.0
+
+### Detalhes Técnicos
+
+- **Node Type**: `n8n-nodes-base.emailReadImap`
+- **Mailbox**: INBOX
+- **Format**: simple (retorna texto e attachments)
+- **Mark as Read**: true (após processamento)
+- **Email Header**: headers.from contém email do vendedor
+- **Database Field**: email_vendedor (VARCHAR 255, NOT NULL)
+- **Index**: CREATE INDEX idx_pedidos_email_vendedor ON pedidos(email_vendedor)
+- **View**: SELECT COUNT(*) by email_vendedor for vendor analytics
+
+### Custo e Viabilidade
+
+- **Custo**: R$ 0/mês (usa Gmail/Hostinger existente)
+- **Escalabilidade**: Suporta múltiplos vendedores sem custos adicionais
+- **Manutenção**: Mínima - configuração única em n8n credentials
+- **Alternativas Rejeitadas**: WhatsApp (R$ 50-300/mês), Telegram (R$ 0 mas manual)
+
+### Roadmap Futuro
+
+- [ ] Integração LDAP para enriquecimento de dados de vendedor (nome, departamento)
+- [ ] Dashboard de Supabase com métricas por vendedor
+- [ ] Notificações de Email para cada vendedor confirmar recebimento
+- [ ] Validação de domínio de email (apenas @empresa.com.br)
+- [ ] Autenticação de email via SPF/DKIM para segurança
+
+---
+
 ## v4.3.0 - 19 de Dezembro de 2025
 
 ### Corrigido
