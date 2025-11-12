@@ -12,7 +12,7 @@ Documentação sobre planos de teste, casos de teste, roteiros de validação e 
 - **TESTE_IMPORTACAO_v4.5.md** - Plano de testes para versão 4.5 (recomendado)
 - **CHECKLIST_DEPLOY.md** - Checklist para validação antes de deployment
 
-## Óreas de Teste
+## Áreas de Teste
 
 ### Funcional
 - Importação de PDFs
