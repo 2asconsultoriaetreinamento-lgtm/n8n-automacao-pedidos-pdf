@@ -24,8 +24,8 @@ Se você quer:
 
 - **Entender o histórico**: Consulte `HISTORICO_VERSOES.md`
 - **Ver mudanças recentes**: Consulte `CHANGELOG.md`
-- **Comparar versões**: Veja `docs/06_COMPARACOES/COMPARACAO_v4.4_vs_v4.5.md`
-- **Migrar de versão**: Veja `docs/02_IMPLEMENTACAO/MIGRACAO_v4.4_para_v4.5.md`
+- **Comparar versões**: Veja [Comparações](../06_COMPARACOES/README.md)
+- **Migrar de versão**: Veja [Implementação](../02_IMPLEMENTACAO/README.md)
 
 ## Próximos Passos
 
