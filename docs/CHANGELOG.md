@@ -18,7 +18,7 @@ Seguimos [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH
 - .gitignore com template Node.js
 
 ### Planejado (Backlog)
-- workflows/pedidos-pdf-supabase.json - Fluxo n8n
+- [x] workflows/pedidos-pdf-supabase.json - Fluxo n8n CRIADO
 - scripts/setup-supabase.sql - DDL para tabelas
 - notifications/templates/ - Templates de email/Telegram
 
