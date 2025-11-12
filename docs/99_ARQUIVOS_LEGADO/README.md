@@ -19,7 +19,7 @@ Não utilize esses procedimentos em novas implementações. Use a documentação
 ## Versões Antigas
 
 Documentação para versões descontinuadas:
-- v4.0, v4.1, v4.2, v4.3 - Ver `05_VERSOES/` para referencia
+- v4.0, v4.1, v4.2, v4.3 - Ver [Versões](../05_VERSOES/) para referência
 - v4.4 - Suporte limitado, migrar para v4.5
 
 ## Como Usar
@@ -27,8 +27,8 @@ Documentação para versões descontinuadas:
 Se você precisa:
 
 - **Entender decisões históricas**: Consulte `DUVIDAS.md`
-- **Referencia de versões antigas**: Veja `ARQUIVOS_REFERENCIA.md`
-- **Migrar de versão antiga**: Veja `docs/02_IMPLEMENTACAO/MIGRACAO_v4.4_para_v4.5.md`
+- **Referência de versões antigas**: Veja `ARQUIVOS_REFERENCIA.md`
+- **Migrar de versão antiga**: Veja [Implementação](../02_IMPLEMENTACAO/README.md)
 
 ## Próximos Passos
 
