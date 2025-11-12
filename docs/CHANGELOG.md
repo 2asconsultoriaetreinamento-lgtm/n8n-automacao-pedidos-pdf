@@ -6,6 +6,25 @@ Seguimos [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH
 
 ---
 
+## v4.3.0 - 19 de Dezembro de 2025
+
+### Corrigido
+
+- **Feedback Loop Implementado**: Nó Loop Over Items (Split in Batches) agora possui feedback loop correto
+- **Suporte a Múltiplos Itens**: Todos os itens do array 'itens' são processados individualmente
+- **Estrutura JSON Aprimorada**: Propriedade 'output' adicionada ao nó Loop para iteração contínua
+- **Validação de Duplicidade Preservada**: Se pedido já existe, workflow pula para LogSuccess
+- **Referência de Item Corrigida**: Usa `$item.json` para acessar cada item no loop
+
+### Detalhes da Solução
+
+- Problema em v4.2: Tipo de nó `n8n-nodes-base.splitInBatches` estava correto, mas a estrutura de feedback loop estava ausente
+- Solução: Adicionada conexão bidirecional entre LoopItems e InsertItens na seção 'connections'
+- Fluxo de execução: LoopItems envia item → InsertItens processa → retorna para LoopItems (próximo item)
+- Continua até `$node.LoopItems.context['noItemsLeft']` ser true
+
+---
+
 ## v4.0.0 - 12 de Novembro de 2025
 
 ### Corrigido
