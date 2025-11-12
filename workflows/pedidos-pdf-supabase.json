@@ -1,5 +1,5 @@
 {
-  "name": "Automacao Pedidos PDF - Taschibra v3.0",
+  "name": "Automacao Pedidos PDF - Taschibra v4.0",
   "nodes": [
     {
       "parameters": {"rule": "everyMinute"},
@@ -19,20 +19,12 @@
       "position": [300, 100]
     },
     {
-      "parameters": {"binaryPropertyName": "data", "options": {}},
-      "id": "ExtractPDF",
-      "name": "PDF Extract (OCR)",
-      "type": "n8n-nodes-base.pdfExtract",
-      "typeVersion": 1,
-      "position": [500, 100]
-    },
-    {
       "parameters": {"functionCode": "const textContent = $json.data; const regexPatterns = {numero_pedido: /(?:Pedido|PED|PEDIDO)[\\s#:]*([\\d]{6,})/i, data_emissao: /(\\d{2})[\\/\\-](\\d{2})[\\/\\-](\\d{4})/, cliente_nome: /(?:Cliente|CLIENTE)[\\s:]*([^\\n,]+)/i, cliente_cnpj: /(?:CNPJ|CPF)[\\s:]*([\\d\\.\\-\\/]+)/i, cidade: /(?:Cidade|CIDADE)[\\s:]*([^,\\n]+)/i, uf: /(?:UF|Estado)[\\s:]*([A-Z]{2})/i, valor_total: /(?:Total|TOTAL|Valor Total)[\\s:]*R\\$\\s*([\\d,.]+)/i}; const pedido = {}; for (const [key, regex] of Object.entries(regexPatterns)) {const match = textContent.match(regex); if (match) {pedido[key] = match[match.length - 1]?.trim() || null;} else {pedido[key] = null;}} const itens = []; const itemRegex = /^\\s*\\d+\\.?\\s+(.+?)\\s+(\\d+,?\\d*)\\s+x?\\s+R\\$\\s*([\\d,.]+)/gm; let itemMatch; while ((itemMatch = itemRegex.exec(textContent)) !== null) {itens.push({descricao_produto: itemMatch[1]?.trim() || 'N/A', quantidade: parseInt(itemMatch[2]?.replace(',', '')) || 0, valor_unitario: parseFloat(itemMatch[3]?.replace(/[^\\d,]/g, '').replace(',', '.')) || 0, status: 'novo'});} return {pedido, itens, total_itens: itens.length, processado_em: new Date().toISOString()};"},
       "id": "ParseData",
       "name": "Parse Data (Code)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [700, 100]
+      "position": [500, 100]
     },
     {
       "parameters": {"url": "{{ $env.SUPABASE_URL }}/rest/v1/pedidos?numero_pedido=eq.{{ $node.ParseData.json.pedido.numero_pedido }}", "method": "GET", "authentication": "headerAuth", "headerAuth.Headers": {"Authorization": "Bearer {{ $env.SUPABASE_KEY }}", "Content-Type": "application/json"}},
@@ -40,7 +32,7 @@
       "name": "HTTP GET - Verificar Duplicidade",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4,
-      "position": [900, 100],
+      "position": [700, 100],
       "continueOnFail": true
     },
     {
@@ -49,7 +41,7 @@
       "name": "IF - Nao Duplicado?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [1100, 100]
+      "position": [900, 100]
     },
     {
       "parameters": {"url": "{{ $env.SUPABASE_URL }}/rest/v1/pedidos", "method": "POST", "authentication": "headerAuth", "headerAuth.Headers": {"Authorization": "Bearer {{ $env.SUPABASE_SECRET_KEY }}", "Content-Type": "application/json", "Prefer": "return=representation"}, "bodyParametersUi": "json", "body": {"numero_pedido": "{{ $node.ParseData.json.pedido.numero_pedido }}", "data_pedido": "{{ $node.ParseData.json.pedido.data_emissao }}", "cliente_nome": "{{ $node.ParseData.json.pedido.cliente_nome }}", "cliente_cnpj": "{{ $node.ParseData.json.pedido.cliente_cnpj }}", "cidade": "{{ $node.ParseData.json.pedido.cidade }}", "uf": "{{ $node.ParseData.json.pedido.uf }}", "valor_total": "{{ $node.ParseData.json.pedido.valor_total }}", "status": "novo"}},
@@ -57,7 +49,7 @@
       "name": "HTTP POST - Inserir Pedido",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4,
-      "position": [1300, 100],
+      "position": [1100, 100],
       "continueOnFail": true
     },
     {
@@ -66,7 +58,7 @@
       "name": "Loop - Itens do Pedido",
       "type": "n8n-nodes-base.loop",
       "typeVersion": 1,
-      "position": [1500, 100]
+      "position": [1300, 100]
     },
     {
       "parameters": {"url": "{{ $env.SUPABASE_URL }}/rest/v1/itens_pedido", "method": "POST", "authentication": "headerAuth", "headerAuth.Headers": {"Authorization": "Bearer {{ $env.SUPABASE_SECRET_KEY }}", "Content-Type": "application/json", "Prefer": "return=representation"}, "bodyParametersUi": "json", "body": {"pedido_id": "={{ $node.InsertPedido.json.response[0].id }}", "descricao_produto": "{{ $item.json.descricao_produto }}", "quantidade": "={{ $item.json.quantidade }}", "valor_unitario": "={{ $item.json.valor_unitario }}", "status": "novo"}},
@@ -74,7 +66,7 @@
       "name": "HTTP POST - Inserir Itens",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4,
-      "position": [1700, 100],
+      "position": [1500, 100],
       "continueOnFail": true
     },
     {
@@ -83,7 +75,7 @@
       "name": "HTTP POST - Log Sucesso",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4,
-      "position": [1900, 100],
+      "position": [1700, 100],
       "continueOnFail": true
     },
     {
@@ -92,14 +84,13 @@
       "name": "HTTP POST - Log Duplicidade",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4,
-      "position": [1100, 250],
+      "position": [900, 250],
       "continueOnFail": true
     }
   ],
   "connections": {
     "SchedulerTrigger": {"main": [[{"node": "ReadPDFFile", "type": "main", "index": 0}]]},
-    "ReadPDFFile": {"main": [[{"node": "ExtractPDF", "type": "main", "index": 0}]]},
-    "ExtractPDF": {"main": [[{"node": "ParseData", "type": "main", "index": 0}]]},
+    "ReadPDFFile": {"main": [[{"node": "ParseData", "type": "main", "index": 0}]]},
     "ParseData": {"main": [[{"node": "CheckDuplicate", "type": "main", "index": 0}]]},
     "CheckDuplicate": {"main": [[{"node": "ValidateDuplicateCondition", "type": "main", "index": 0}]]},
     "ValidateDuplicateCondition": {"main": [[{"node": "InsertPedido", "type": "main", "index": 0}], [{"node": "LogDuplicidade", "type": "main", "index": 0}]]},
@@ -109,6 +100,6 @@
   },
   "active": false,
   "settings": {"saveManualExecutions": true, "errorHandler": "save", "timeout": 3600},
-  "version": 3.0,
-  "description": "Fluxo v3.0 - Leitura PDF > Extracao > Parsing > Validacao Duplicidade > Insercao Pedido > Loop Itens > Logging"
+  "version": 4.0,
+  "description": "Fluxo v4.0 - Corrigido para compatibilidade total - Leitura PDF > Parsing > Validacao Duplicidade > Insercao Pedido > Loop Itens > Logging. Removido node PDF Extract incompativel e otimizado para n8n padrão."
 }
