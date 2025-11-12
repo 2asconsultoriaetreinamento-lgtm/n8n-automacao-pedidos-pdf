@@ -1,20 +1,25 @@
 {
-  "name": "Automacao Pedidos PDF - Taschibra v4.3",
+  "name": "Automacao Pedidos PDF - Taschibra v4.4",
   "nodes": [
     {
       "parameters": {
-        "rule": "everyMinute"
+        "conditions": {
+          "string": []
+        },
+        "mailbox": "INBOX",
+        "format": "simple",
+        "markAsRead": true,
+        "options": {}
       },
-      "id": "SchedulerTrigger",
-      "name": "Scheduler (Cron)",
-      "type": "n8n-nodes-base.cron",
-      "typeVersion": 1,
-      "position": [100, 100],
-      "disabled": false
+      "id": "EmailTrigger",
+      "name": "Email Trigger (IMAP)",
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2,
+      "position": [100, 100]
     },
     {
       "parameters": {
-        "filePath": "/data/pedidos/{{ now('YYYY-MM-DD') }}.pdf"
+        "filePath": "={{ $json.attachments[0].filename }}"
       },
       "id": "ReadPDFFile",
       "name": "Read Binary File (PDF)",
@@ -55,7 +60,7 @@
           "boolean": [
             {
               "value1": "={{$json.length > 0}}",
-              "operator": {"name": "===\u002B", "value": "true", "type": "boolean"}
+              "operator": {"name": "===", "value": "true", "type": "boolean"}
             }
           ]
         }
@@ -83,6 +88,7 @@
           "cidade": "={{$node.ParseData.json.pedido.cidade}}",
           "uf": "={{$node.ParseData.json.pedido.uf}}",
           "valor_total": "={{$node.ParseData.json.pedido.valor_total}}",
+          "email_vendedor": "={{$node.EmailTrigger.json.headers.from}}",
           "status": "registrado"
         }
       },
@@ -139,13 +145,14 @@
         },
         "body": {
           "numero_pedido": "={{$node.ParseData.json.pedido.numero_pedido}}",
+          "email_vendedor": "={{$node.EmailTrigger.json.headers.from}}",
           "status": "sucesso",
           "total_itens": "={{$node.ParseData.json.total_itens}}",
           "timestamp": "={{$node.ParseData.json.processado_em}}"
         }
       },
       "id": "LogSuccess",
-      "name": "HTTP POST - Log Duplicidade",
+      "name": "HTTP POST - Log Sucesso",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4,
       "position": [900, 250],
@@ -153,7 +160,7 @@
     }
   ],
   "connections": {
-    "SchedulerTrigger": {
+    "EmailTrigger": {
       "main": [[{"node": "ReadPDFFile", "type": "main", "index": 0}]]
     },
     "ReadPDFFile": {
@@ -185,6 +192,6 @@
     "errorHandler": "save",
     "timeout": 3600
   },
-  "version": 4.3,
-  "description": "Fluxo v4.3 - Com Loop Over Items (Split in Batches). Processo TODOS os itens do pedido. Fluxo: PDF -> Parse -> Validacao -> Insercao Pedido -> Loop Items -> Insercao Itens. Feedback loop implementado."
+  "version": 4.4,
+  "description": "Fluxo v4.4 - Email Trigger (IMAP). Recebe pedidos por email dos vendedores. Loop Over Items implementado. Email do vendedor vinculado automaticamente. Fluxo: Email → PDF → Parse → Validacao → Insercao Pedido (com email_vendedor) → Loop Items → Insercao Itens."
 }
