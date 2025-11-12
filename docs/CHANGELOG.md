@@ -6,6 +6,27 @@ Seguimos [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH
 
 ---
 
+## v4.0.0 - 12 de Novembro de 2025
+
+### Corrigido
+- Node 'PDF Extract (OCR)' removido por incompatibilidade com n8n padrão
+- Todas as 10 conexões entre nodes agora estão interligadas corretamente
+- Fluxo de parsing otimizado para usar apenas Code node (JavaScript)
+- Posições dos nodes ajustadas para melhor visualização
+- JSON validado e testado para compatibilidade total com n8n
+
+### Modificado
+- Versão do fluxo atualizada de 3.0 para 4.0
+- Estrutura do fluxo simplificada de 11 para 10 nodes funcionais
+- Tamanho do arquivo reduzido de 7.26 KB para 7.04 KB
+
+### Status
+- ✅ JSON válido e importável sem erros
+- ✅ Todas as conexões de nodes validadas
+- ✅ Pronto para importação em instância n8n
+
+---
+
 ## v1.0.0 - 11 de Novembro de 2025
 
 ### Adicionado
