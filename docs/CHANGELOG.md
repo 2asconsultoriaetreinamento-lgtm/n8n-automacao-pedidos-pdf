@@ -21,6 +21,49 @@ Seguimos [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH
 
 ### Adicionado
 
+
+## v3.0.0 - 12 de Novembro de 2025
+
+### Adicionado
+
+- Loop Node: Iteracao em array de itens para processamento em lote
+- Extended Parsing: Regex patterns para 10+ campos de pedidos
+- Conditional Flow: Node IF para validacao de duplicidade
+- HTTP GET Node: Consulta Supabase com filtro numero_pedido
+- Logging Nodes: 3 nodes HTTP POST para sucesso, duplicidade e erros
+- Error Handling: continueOnFail para todos nodes HTTP
+- Body Mapping: Mapeamento JSON com n8n expressions
+- Environment Variables: $env.SUPABASE_URL, $env.SUPABASE_KEY, $env.SUPABASE_SECRET_KEY
+
+### Arquitetura Completa v3.0
+
+Fluxo: Scheduler > ReadFile > ExtractPDF > ParseData > HTTPGet > IF > InsertPedido > Loop > InsertItens > LogSucesso
+
+### Nodes Implementados
+
+1. SchedulerTrigger (cron) - Executa a cada minuto
+2. ReadPDFFile (readBinaryFile) - Leitura de arquivo PDF
+3. ExtractPDF (pdfExtract) - Extracao OCR de texto
+4. ParseData (code) - JavaScript com regex patterns
+5. CheckDuplicate (httpRequest GET) - Validacao de numero_pedido
+6. ValidateDuplicateCondition (if) - Condicional para duplicidade
+7. InsertPedido (httpRequest POST) - Insercao na tabela pedidos
+8. LoopItens (loop) - Iteracao em array de itens
+9. InsertItens (httpRequest POST) - Insercao em tabela itens_pedido
+10. LogSucesso (httpRequest POST) - Registro de sucesso
+11. LogDuplicidade (httpRequest POST) - Registro de duplicidade
+12. Connections e settings: Active, errorHandler save, timeout 3600s
+
+### Melhorias v3.0
+
+- Loops explícitos para processamento de múltiplos itens
+- Validacao robusta com condicional ramificado (true/false)
+- Logging estruturado em 3 cenários diferentes
+- Regex patterns otimizados para layout Taschibra
+- API REST completa com Supabase REST
+
+---
+
 - Expansao completa do fluxo n8n com 8 nodes para processamento de PDFs
 - ReadPDFFile: Leitura binaria e processamento de arquivos PDF
 - ExtractPDF: Extracao de texto com OCR em n8n
